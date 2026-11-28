@@ -1,0 +1,17 @@
+{
+ "version": "1.2.77",
+ "files": {
+  "setup": {
+   "name": "SharkyClips-Setup-1.2.77.exe",
+   "url": "https://github.com/utkualsir/sharkyclips/releases/download/v1.2.77/SharkyClips-Setup-1.2.77.exe",
+   "sha256": "2243ce4359aed49b9e12ecb88621b8e947b0ccc37318b44b26bd7a08aca15196",
+   "bytes": 379759087
+  },
+  "install_sh": {
+   "name": "install.sh",
+   "url": "https://github.com/utkualsir/sharkyclips/releases/download/v1.2.77/install.sh",
+   "sha256": "0ff8ce3a3b109f230e66e2d202e398baeda0875e32b4d8ae605da617cd81b2e7",
+   "bytes": 14990
+  }
+ }
+}
