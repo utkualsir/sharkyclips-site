@@ -1,0 +1,48 @@
+name: Update from the latest release
+
+# 1.2.78: copied into utkualsir/sharkyclips-site by docs/publish-site.sh (source: the app repo's
+# docs/sitegen/site-repo/). Every release of the app carries the website built for it
+# (website-<version>.zip, with the release's real sizes and checksums); this puts the newest one
+# live and fails when the live site and the release differ. Uses only this repo's own token.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: site-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Unpack the newest release's website
+        id: up
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .github/update_from_release.py
+      - name: Commit and push
+        if: steps.up.outputs.version != ''
+        env:
+          V: ${{ steps.up.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -q -m "Release $V: version, size and checksums (automatic)"
+          git push -q origin HEAD:main
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds" >/dev/null || echo "Pages build request failed (it usually starts by itself)"
+      - name: The live site matches the release
+        if: steps.up.outputs.waiting != '1'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .github/check_release.py --site "https://utkualsir.github.io/sharkyclips-site/" --wait 900
